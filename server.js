@@ -96,7 +96,7 @@ app.get('/', (요청,응답) =>{
 
 
 // 클라이언트에서 /register를 요청시 register.ejs를 랜더링 해줌
-app.get('/register', idPasswordCheck,  (요청,응답) => {
+app.get('/register',  (요청,응답) => {
     응답.render('register.ejs');
 })
 
@@ -167,6 +167,11 @@ app.get('/list', async(요청,응답) => {
 
 
 
+//로그인 기능
+
+app.get('/login', (요청,응답) => {
+    응답.render('login.ejs')
+})
 
 
 

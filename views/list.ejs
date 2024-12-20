@@ -3,17 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/list.css" />
     <title>게시판</title>
 </head>
 <body>
-    <h2>게시판</h2>
-    <div>
-        <% for(let i = 0; i < post.length; i++){ %>
-        <div>
-            <p><%= post[i].title %> </p>
-            <p><%= post[i].content %> </p>
-        </div>
-        <% } %>
+    <div class="board-container">
+        
+        <h1>게시판</h1>
+        <table class="board-table">
+            
+            <thead>
+                <tr>
+                    <th>제목</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for(let i = 0; i < post.length; i++){ %>
+                <tr>
+                    <td><%= post[i].title %></td>
+                </tr>
+                <% } %>
+            </tbody>
+            
+        </table>
+    
     </div>
+
 </body>
 </html>
