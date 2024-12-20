@@ -12,6 +12,8 @@ const methodOverride = require('method-override')
 const bcrypt = require('bcrypt');
 
 
+
+
 // 로그인 한 세션을 DB에 저장하기 위한 라이브러리
 const MongoStore = require('connect-mongo')
 
@@ -20,14 +22,14 @@ require('dotenv').config()
 
 
 
-//
+// MongoDB를 서버와 연결하기 위한 코드
 let db;
 const url = process.env.DB_URL;
 new MongoClient(url)
   .connect()
   .then((client) => {
     console.log("DB연결성공");
-    db = client.db("Shop");
+    db = client.db("Shop");
     app.listen(process.env.PORT, () => {
       console.log(`포트번호: ${process.env.PORT}에서 실행중...`);
     });
@@ -73,12 +75,70 @@ app.use(express.static(__dirname + "/public"));
 
 
 
+// 아이디비밀번호 검증 미들웨어 설정
+function idPasswordCheck (요청,응답,next)  {
+    if(요청.body.userid == '' || 요청.body.password == ''){
+        응답.send('아이디 혹은 비밀번호가 공백입니다. ')
+    }else if(요청.body.password.length < 6){
+        응답.send('비밀번호는 6글자 이상으로 해주세요.!');
+    }else{
+        next();
+    }
+}
 
 
+
+
+// 클라이언트에서 "/"를 요청시 main.ejs를 랜더링 해줌
 app.get('/', (요청,응답) =>{
     응답.render('main.ejs');
 })
 
-app.get('/register', (요청,응답) => {
+
+// 클라이언트에서 /register를 요청시 register.ejs를 랜더링 해줌
+app.get('/register', idPasswordCheck,  (요청,응답) => {
     응답.render('register.ejs');
+})
+
+
+
+// idPasswordCheck 미들웨어를 넣어줘서 아이디 혹은 비밀번호 공백 확인 
+app.post('/register', idPasswordCheck, async (요청,응답) => {
+    let result = await db.collection('User').findOne({ userId : 요청.body.userId })
+    let 해싱 = await bcrypt.hash(요청.body.password, 10)
+    try{
+        if(result){
+            응답.send('아이디가 이미 있습니다. 다른 아이디를 사용하세요.')
+        }else {
+            await db.collection('User').insertOne({userId : 요청.body.userId, password : 해싱, email : 요청.body.email, name : 요청.body.userName, address : 요청.body.address, phoneNum : 요청.body.phoneNum })
+            응답.render('main.ejs')
+        }
+        
+
+    } catch(e) {
+        console.log('회원가입 오류~')
+    }
+    
+})
+
+
+
+// 로그인 기능
+// 클라이언트에서 /login 요청을 하면 서버에서  jwt 발급 인증 후 다시 클라이언트로 보내줌
+app.get('/login', (요청,응답)=> {
+    응답.render('login.ejs')
+})
+
+
+app.post('/login',idPasswordCheck, async(요청,응답) => {
+    try{
+        let result = await db.collection('user').findeOne({password : 요청.body.password})
+        if(!result){
+            응답.send('비밀번호가 맞지 않습니다. 비밀번호를 다시 입력해주세요.!');
+        }else{
+            await db.collection('user').findeOne()
+        }
+    } catch(e){
+        console.log(e)
+    }
 })
