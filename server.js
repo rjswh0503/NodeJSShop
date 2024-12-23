@@ -159,6 +159,15 @@ app.get('/list', async(요청,응답) => {
 
 
 // 게시글 상세페이지
+//detail/요청한 url파라미터 id값 /detail/:id에 맞는 detail페이지 랜더링
+app.get('/detail/:id', async (요청,응답) => {
+    try{
+        let result = await db.collection('post').findOne({_id: new ObjectId(요청.params.id)})
+        응답.render('detail.ejs', { post : result});
+    } catch(e) {
+        console.log(e);
+    }
+})
 
 
 
