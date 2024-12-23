@@ -68,6 +68,8 @@ app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+//메소드오버라이드 원래 form 태그안에 method는 get, post만 사용할 수 있지만
+//메소드 오버라이드 라이브러리를 사용하면 form태그 method에 put delete를 사용할 수 있다.
 app.use(methodOverride('_method'));
 
 // server.js에서 .css .js .jpg를 사용하기 위한 코드 
@@ -159,21 +161,38 @@ app.get('/list', async(요청,응답) => {
 
 
 // 게시글 상세페이지
-//detail/요청한 url파라미터 id값 /detail/:id에 맞는 detail페이지 랜더링
+//detail/요청한 url파라미터 id값 /detail/:id에 맞는 detail  랜더링
 app.get('/detail/:id', async (요청,응답) => {
     try{
         let result = await db.collection('post').findOne({_id: new ObjectId(요청.params.id)})
-        응답.render('detail.ejs', { post : result});
+        응답.render('detail.ejs', { detail : result});
     } catch(e) {
         console.log(e);
     }
 })
 
 
+//게시글 수정기능 만들기
 
+app.get('/post/:id', async(요청,응답) => {
+    try{
+        let result = await db.collection('post').findOne({_id: new ObjectId(요청.params.id)})
+    응답.render('edit.ejs', { edit : result })
+    }catch(e){
+        console.log(e)
+    }
+})
 
+//수정
 
-
+app.put('/edit', async(요청,응답) => {
+    try{
+        await db.collection('post').updateOne({_id : new ObjectId(요청.body.id)}, {$set : {title: 요청.body.title, content: 요청.body.content}})
+        응답.redirect('/list')
+    }catch(e){
+        응답.status(500).send("서버에러");
+    }
+})
 
 
 //로그인 기능

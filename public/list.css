@@ -61,3 +61,8 @@ h1 {
   
   cursor: pointer;
 }
+
+
+span {
+  text-align: end;
+}

@@ -20,7 +20,11 @@
             <tbody>
                 <% for(let i = 0; i < post.length; i++){ %>
                 <tr>
-                    <td><a href="/detail/<%= post[i]._id %>"><%= post[i].title %></a></td>
+                    <td><a href="/detail/<%= post[i]._id %>"><%= post[i].title %></a>
+                    <span><a href="/post/<%= post[i]._id %>">수정</a></span>
+                    <span>삭제</span>
+                    
+                    </td>
                 </tr>
                 <% } %>
             </tbody>
