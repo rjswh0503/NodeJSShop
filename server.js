@@ -12,6 +12,8 @@ const methodOverride = require('method-override')
 const bcrypt = require('bcrypt');
 
 
+// Jwt을 발급하기 위한 코드 작성
+const jwt = require('jsonwebtoken')
 
 
 // 로그인 한 세션을 DB에 저장하기 위한 라이브러리
@@ -205,9 +207,62 @@ app.delete('/:id', async (요청,응답) => {
 
 //로그인 기능 jwt 사용해서 만들기 !! 공부
 
+
+// 클라이언트가 "/login" 요청시 login.ejs 랜더링해주기
 app.get('/login', (요청,응답) => {
     응답.render('login.ejs')
 })
+
+
+// jwt JsonWebToken을 사용해서 클라이언트가 로그인 요청시 서버에서 토큰을 발급해서 사용자인증을 한 후 
+// 클라이언트에게 토큰을 같이 응답해줌.
+
+app.post("/login", async (요청, 응답) => {
+    try {
+      // MongoDB에서 사용자 찾기
+      let user = await db.collection("User").findOne({ userId: 요청.body.userId });
+      console.log("DB User:", user);
+  
+      // 사용자 검증
+      if (!user || !(await bcrypt.compare(요청.body.password, user.password))) {
+        return 응답.status(404).json({ message: "아이디 혹은 비밀번호가 다릅니다." });
+      }
+  
+      // JWT 발급
+      const token = jwt.sign({ userId: user.userId, id: user._id }, process.env.JWT_SECRET_KEY, {
+        expiresIn: "1h",
+      });
+      console.log(token)
+      응답.redirect('/');
+    } catch (e) {
+      console.error(e);
+      return 응답.status(500).json({ message: "서버 오류..." });
+    }
+  });
+
+
+
+// token 인증 미들웨어
+
+function checkedToken (요청,응답,next) {
+    const token = 요청.header["authorization"]?.split("")[1];
+
+    if(!token){
+        return 응답.status(403).json({ message: '토큰'});
+    }
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY)
+        요청.user = decoded;
+        next()
+    } catch(e){
+        return 응답.status(401).json({message : '토큰검증'})
+
+    }
+
+}
+
+
+
 
 
 
