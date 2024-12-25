@@ -22,8 +22,7 @@
                 <tr>
                     <td><a href="/detail/<%= post[i]._id %>"><%= post[i].title %></a>
                     <span><a href="/post/<%= post[i]._id %>">수정</a></span>
-                    <span>삭제</span>
-                    
+                    <span class="delete" data-id="<%= post[i]._id %>">삭제</span> 
                     </td>
                 </tr>
                 <% } %>
@@ -32,6 +31,21 @@
         </table>
     
     </div>
+
+
+    <script>
+        for(let i = 0; i <=document.querySelectorAll('.delete').length; i++ ) {
+            document.querySelectorAll('.delete')[i].addEventListener('click', function(e){
+            fetch('/delete?docid=' + e.target.dataset.id, {
+                method: 'DELETE',
+            })
+            alert('삭제완료!')
+            e.target.parentElement.parentElement.style.display = 'none'
+        })
+        }
+        
+
+    </script>
 
 </body>
 </html>

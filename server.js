@@ -195,7 +195,15 @@ app.put('/edit', async(요청,응답) => {
 })
 
 
-//로그인 기능
+// 삭제기능 
+
+app.delete('/:id', async (요청,응답) => {  
+          await db.collection('post').deleteOne({_id:new ObjectId(요청.query.docid)})
+            응답.redirect('/list')
+})
+
+
+//로그인 기능 jwt 사용해서 만들기 !! 공부
 
 app.get('/login', (요청,응답) => {
     응답.render('login.ejs')
